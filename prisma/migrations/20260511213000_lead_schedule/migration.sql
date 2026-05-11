@@ -1,0 +1,1 @@
+-- Placeholder migration for Lead scheduling fields and admin queries.

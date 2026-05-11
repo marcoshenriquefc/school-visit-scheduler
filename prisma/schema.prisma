@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { ADMIN MARKETING OPERATIONAL COMMERCIAL }
+enum UserStatus { ACTIVE INACTIVE }
+enum FormStatus { DRAFT ACTIVE PAUSED CLOSED }
+enum LeadStatus { SCHEDULED ATTENDED NO_SHOW RESCHEDULED CANCELED }
+enum RubeusStatus { PENDING SENT ERROR RESENT }
+enum ApiKeyStatus { ACTIVE INACTIVE }
+enum FormFieldType { TEXT EMAIL PHONE SELECT CHECKBOX RADIO TEXTAREA DATE HIDDEN }
+
+model User { id String @id @default(cuid()) name String email String @unique passwordHash String role UserRole status UserStatus @default(ACTIVE) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt @@index([email]) @@index([status]) }
+model Unit { id String @id @default(cuid()) name String identifier String @unique address String defaultCapacityPerHour Int color String? isActive Boolean @default(true) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt availabilities AvailabilitySlot[] leads Lead[] formUnits FormUnit[] @@index([identifier]) @@index([isActive]) }
+model Grade { id String @id @default(cuid()) name String identifier String @unique isActive Boolean @default(true) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt leads Lead[] formGrades FormGrade[] @@index([identifier]) @@index([isActive]) }
+model Form { id String @id @default(cuid()) campaignIdentifier String title String slug String @unique finalMessage String? lgpdText String? startDate DateTime endDate DateTime status FormStatus @default(DRAFT) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt formUnits FormUnit[] formGrades FormGrade[] availabilities AvailabilitySlot[] leads Lead[] fields FormField[] @@index([slug]) @@index([status]) @@index([campaignIdentifier]) @@index([startDate]) @@index([endDate]) }
+model FormField { id String @id @default(cuid()) formId String label String name String type FormFieldType placeholder String? isRequired Boolean @default(false) options Json? order Int @default(0) isActive Boolean @default(true) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt form Form @relation(fields:[formId], references:[id], onDelete:Cascade) @@unique([formId, name]) @@index([formId]) @@index([isActive]) @@index([order]) }
+model FormUnit { id String @id @default(cuid()) formId String unitId String form Form @relation(fields:[formId], references:[id], onDelete:Cascade) unit Unit @relation(fields:[unitId], references:[id], onDelete:Cascade) @@unique([formId, unitId]) @@index([formId]) @@index([unitId]) }
+model FormGrade { id String @id @default(cuid()) formId String gradeId String form Form @relation(fields:[formId], references:[id], onDelete:Cascade) grade Grade @relation(fields:[gradeId], references:[id], onDelete:Cascade) @@unique([formId, gradeId]) @@index([formId]) @@index([gradeId]) }
+model AvailabilitySlot { id String @id @default(cuid()) formId String unitId String date DateTime startTime String endTime String capacity Int isBlocked Boolean @default(false) blockReason String? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt form Form @relation(fields:[formId], references:[id], onDelete:Cascade) unit Unit @relation(fields:[unitId], references:[id], onDelete:Cascade) leads Lead[] @@index([formId]) @@index([unitId]) @@index([date]) }
+model Lead { id String @id @default(cuid()) formId String unitId String gradeId String availabilitySlotId String? name String email String phone String lgpdAccepted Boolean lgpdAcceptedBy String? publicCancelToken String @unique dynamicFields Json? status LeadStatus @default(SCHEDULED) rubeusStatus RubeusStatus @default(PENDING) rubeusResponse String? retryCount Int @default(0) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt form Form @relation(fields:[formId], references:[id]) unit Unit @relation(fields:[unitId], references:[id]) grade Grade @relation(fields:[gradeId], references:[id]) availabilitySlot AvailabilitySlot? @relation(fields:[availabilitySlotId], references:[id]) integrationLogs IntegrationLog[] @@index([email]) @@index([formId]) @@index([unitId]) @@index([status]) }
+model IntegrationLog { id String @id @default(cuid()) leadId String integrationName String status String requestPayload String? responsePayload String? errorMessage String? createdAt DateTime @default(now()) lead Lead @relation(fields:[leadId], references:[id], onDelete:Cascade) @@index([leadId]) @@index([status]) }
+model ApiKey { id String @id @default(cuid()) name String keyHash String status ApiKeyStatus @default(ACTIVE) createdAt DateTime @default(now()) lastUsedAt DateTime? @@index([status]) }

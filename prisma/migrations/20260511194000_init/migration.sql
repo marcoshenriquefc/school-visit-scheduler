@@ -1,0 +1,1 @@
+-- Initial migration placeholder. Run `npx prisma migrate dev --name init` to regenerate SQL in a full Node environment.

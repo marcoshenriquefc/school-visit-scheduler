@@ -1,0 +1,2 @@
+-- Placeholder migration for FormField and Lead.dynamicFields.
+-- Run `npx prisma migrate dev --name form_fields` in a full environment.
