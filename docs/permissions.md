@@ -1,0 +1,12 @@
+# Permissions
+
+Perfis:
+- ADMIN
+- MARKETING
+- COMMERCIAL
+- OPERATIONAL
+
+Exemplos:
+- Exportação de leads: ADMIN/MARKETING/COMMERCIAL.
+- Dashboard: ADMIN/MARKETING/COMMERCIAL/OPERATIONAL.
+- API Keys: ADMIN.
