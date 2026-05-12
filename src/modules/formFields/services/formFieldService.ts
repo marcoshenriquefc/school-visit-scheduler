@@ -4,7 +4,7 @@ import { FormRepository } from '../../forms/repositories/formRepository';
 import { FormFieldRepository } from '../repositories/formFieldRepository';
 
 export class FormFieldService {
-  constructor(private readonly formRepository = new FormRepository(), private readonly formFieldRepository = new FormFieldRepository()) {}
+  constructor(private readonly formRepository = new FormRepository(), private readonly formFieldRepository = new FormFieldRepository()) { }
 
   private async ensureForm(formId: string) { const form = await this.formRepository.findById(formId); if (!form) throw new AppError('Form not found', 404); return form; }
 
@@ -17,11 +17,11 @@ export class FormFieldService {
 
   list(formId: string) { return this.formFieldRepository.findMany(formId); }
 
-  async getById(formId: string, fieldId: string) { await this.ensureForm(formId); const field = await this.formFieldRepository.findById(fieldId); if (!field || field.formId !== formId) throw new AppError('Form field not found',404); return field; }
+  async getById(formId: string, fieldId: string) { await this.ensureForm(formId); const field = await this.formFieldRepository.findById(fieldId); if (!field || field.formId !== formId) throw new AppError('Form field not found', 404); return field; }
 
   async update(formId: string, fieldId: string, input: { label?: string; name?: string; type?: FormFieldType; placeholder?: string; isRequired?: boolean; options?: unknown; order?: number; isActive?: boolean }) {
     await this.getById(formId, fieldId);
-    if (input.name) { const existing = await this.formFieldRepository.findByName(formId, input.name); if (existing && existing.id !== fieldId) throw new AppError('Field name must be unique per form',409); }
+    if (input.name) { const existing = await this.formFieldRepository.findByName(formId, input.name); if (existing && existing.id !== fieldId) throw new AppError('Field name must be unique per form', 409); }
     return this.formFieldRepository.update(fieldId, input);
   }
 
