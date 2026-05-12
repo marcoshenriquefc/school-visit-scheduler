@@ -5,6 +5,10 @@ import { ParamsRequest } from '@/@types/express';
 const publicFormService = new PublicFormService();
 
 export class PublicFormController {
+  async getFormData(request: Request<ParamsRequest<"slug">>, response: Response): Promise<Response> {
+    return response.json(await publicFormService.getFormData(request.params.slug));
+  }
+
   async getForm(request: Request<ParamsRequest<"slug">>, response: Response): Promise<Response> {
     return response.json(await publicFormService.getForm(request.params.slug));
   }
